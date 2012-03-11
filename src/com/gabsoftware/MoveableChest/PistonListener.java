@@ -6,15 +6,18 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 public class PistonListener implements Listener {
 	
@@ -51,8 +54,18 @@ public class PistonListener implements Listener {
 		
 		BlockFace face = null;
 		Block currentRelative = null;
+		Block oldBlock = null;
+		Block newBlock = null;
 		boolean foundChest = false;
 		int currentRelativeIndex = 1;
+		int i = 1;
+		Location oldLoc = null;
+		Location newLoc = null;
+		Material oldMat = null;
+		Material newMat = null;
+		double x_offset = 0;
+		double y_offset = 0;
+		double z_offset = 0;
 		
 		for( Block piston : pistons )
 		{
@@ -72,6 +85,7 @@ public class PistonListener implements Listener {
 					if( currentRelative.getType().equals( Material.CHEST ) )
 					{
 						foundChest = true;
+						break;
 					}
 					currentRelativeIndex ++;	
 				}
@@ -85,45 +99,104 @@ public class PistonListener implements Listener {
 			if( foundChest )
 			{
 				this.server.broadcastMessage( "Chest detected in front of piston!" );
-					
+				
+
 				//we have to move the chest 1 block away or towards the piston
 				if( event.getNewCurrent() > 0 )
 				{
-					//move the chest 1 block away
-					Location loc = currentRelative.getLocation();
-					//World world = loc.getWorld();
+					//move the chest 1 block away (and all the blocks in between)
+								
 					
-					double x_offset = 0;
-					double y_offset = 0;
-					double z_offset = 0;
-					
-					switch( face )
-					{
-						case NORTH:
-							y_offset = -1;
-						case EAST:
-							x_offset = 1;
-						case SOUTH:
-							y_offset = 1;
-						case WEST:
-							x_offset = -1;
-						case UP:
-							z_offset = 1;
-						case DOWN:
-							z_offset = -1;					
+					//loop through the block list behind the piston
+					for( i = currentRelativeIndex; i >= 1; i++ )
+					{						
+						//get the block
+						oldBlock = piston.getRelative(face, i);
+						
+						//get the state of the old block
+						BlockState oldState =  oldBlock.getState();
+						
+						//get the location of the old block
+						oldLoc = oldState.getLocation();
+						
+						//get the material of the old block
+						oldMat = oldState.getType();
+						
+						x_offset = 0;
+						y_offset = 0;
+						z_offset = 0;
+						
+						switch( face )
+						{
+							case NORTH:
+								x_offset = -1;
+								break;
+							case SOUTH:
+								x_offset = 1;
+								break;
+							case EAST:
+								z_offset = -1;
+								break;
+							case WEST:
+								z_offset = 1;
+								break;
+							case UP:
+								y_offset = 1;
+								break;
+							case DOWN:
+								y_offset = -1;
+								break;
+						}
+						
+						//get the new block location
+						newLoc = oldLoc.add(x_offset, y_offset, z_offset);
+						
+						//get the new block
+						newBlock = newLoc.getBlock();
+						
+						//get the state of the new block
+						BlockState newState = newBlock.getState();
+						
+						//set the new block material
+						newBlock.setType( oldMat );
+						
+						//if the old block was a chest, copy the inventory to the new chest
+						if( oldMat.equals( Material.CHEST ) )
+						{							
+							//get the inventory of the old chest
+							InventoryHolder oldIH = (InventoryHolder) oldState.getData();
+							Inventory oldInv = oldIH.getInventory();
+							ItemStack[] oldItems = oldInv.getContents();
+
+							//copy the inventory to the new chest							
+							InventoryHolder newIH = (InventoryHolder) newState.getData();
+							Inventory newInv = newIH.getInventory();
+							newInv.setContents( oldItems.clone() );
+
+							//clear the inventory of the old chest
+							oldInv.clear();
+						}						
+																	
+						//replace the old block by AIR
+						oldMat = Material.AIR;
+						oldState.setType( oldMat );
+						
+						//update the old block
+						oldState.update( true );					
+						
+						//update the new block
+						newState.update( true );						
 					}
-					
-					loc.setX( x_offset );
-					loc.setY( y_offset );
-					loc.setZ( z_offset );
-					
-					//world.save();
-					
 				}
 				else
 				{
-					//move the chest 1 block towards
+					//move the chest 1 block towards the piston
+					
+					
+					
+
 				}
+				
 				
 			}
 			else
