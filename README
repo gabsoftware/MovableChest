@@ -1,1 +1,12 @@
-Hello !
+MovableChest plugin for Bukkit
+Version: 0.1
+Bukkit version: 1.2.3-R0.2
+
+MovableChest let Minecraft players move their Chests, Furnaces, Dispensers and Brewing stands with Pistons.
+This is an alpha release, it probably contains bugs. I can't be taken for responsible of any damage to your Minecraft server and/or world.
+
+Known problems:
+* No piston sound while extending
+* If pistons move too rapidly, the chest, furnace etc may disapear.
+
+License: ISC. 

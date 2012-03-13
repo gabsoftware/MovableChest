@@ -1,4 +1,4 @@
-package com.gabsoftware.MoveableChest;
+package com.gabsoftware.MovableChest;
 
 import java.util.logging.Logger;
 
@@ -7,21 +7,21 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class MoveableChest extends JavaPlugin
+public class MovableChest extends JavaPlugin
 {
 	Logger log;
 
 	public void onEnable()
 	{
 		log = this.getLogger();
-		log.info( "MoveableChest has been enabled!" );
+		log.info( "MovableChest has been enabled!" );
 		getServer().getPluginManager().registerEvents( new PistonListener( getServer() ), this);
 		log.info( "PistonListener registered." );
 	}
  
 	public void onDisable()
 	{
-		log.info( "MoveableChest has been disabled." );
+		log.info( "MovableChest has been disabled." );
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)
@@ -40,7 +40,7 @@ public class MoveableChest extends JavaPlugin
 			}
 			else
 			{
-				log.info( "MoveableChest is active!" );
+				log.info( "MovableChest is active!" );
 			}
 			return true;
 		}

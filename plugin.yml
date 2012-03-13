@@ -1,9 +1,9 @@
-name: MoveableChest
-main: com.gabsoftware.MoveableChest.MoveableChest
+name: MovableChest
+main: com.gabsoftware.MovableChest.MovableChest
 version: 0.1
 commands:
   mc:
     description: This is the main command.
     usage: /mc
-    permission: MoveableChest.mc
+    permission: MovableChest.mc
     permission-message: You don't have the permission to use this command.

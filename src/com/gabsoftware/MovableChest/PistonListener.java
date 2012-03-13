@@ -1,4 +1,4 @@
-package com.gabsoftware.MoveableChest;
+package com.gabsoftware.MovableChest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -204,6 +204,7 @@ public class PistonListener implements Listener {
 					{
 						this.server.broadcastMessage( "MovableChest: Could not update new Chest block!" );
 					}
+					
 				}
 				else if( oldMat.equals( Material.FURNACE ) )
 				{
