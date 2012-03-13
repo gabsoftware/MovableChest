@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
@@ -68,9 +69,14 @@ public class PistonListener implements Listener {
 		double z_offset = 0;
 		BlockState oldState = null;
 		BlockState newState = null;
+		Chest oldChestState = null;
+		Chest newChestState = null;
+		InventoryHolder oldIH = null;
 		Inventory oldInv = null;
 		ItemStack[] oldItems = null;
+		InventoryHolder newIH = null;
 		Inventory newInv = null;
+		MaterialData oldMatData;
 		
 		for( Block piston : pistons )
 		{
@@ -167,50 +173,70 @@ public class PistonListener implements Listener {
 						
 						//if the old block was a chest, copy the inventory to the new chest
 						if( oldMat.equals( Material.CHEST ) )
-						{							
+						{
+							//cast the old block state to a Chest 
+							oldChestState = (Chest) oldState.getBlock().getState();
+							
 							//get the inventory of the old chest
-							oldInv = ((Chest) oldState).getInventory();
+							oldInv = oldChestState.getInventory();
 							
 							//store a copy of the items
 							oldItems = oldInv.getContents().clone();
 							
 							//get a copy of the data of the old chest
-							MaterialData oldMatData = ((Chest) oldBlock).getData();
+							oldMatData = oldChestState.getData();
 
 							//clear the inventory of the old chest
 							oldInv.clear();
 							
 							//replace the old chest block by AIR
-							oldState.setType( Material.AIR );
+							oldChestState.setType( Material.AIR );
+							
+							//update the old block
+							if( ! oldChestState.update( true ) )
+							{
+								this.server.broadcastMessage( "Could not update old block!" );
+							}
 							
 							//set the new block material
 							newState.setType( Material.CHEST );
+							newState.update( true );
+							newChestState = (Chest) newState.getBlock().getState();
 							
 							//set the data of the new chest
-							((Chest) newBlock).setData( oldMatData );
+							newState.setData( oldMatData );
 							
 							//get the inventory to the new chest
-							newInv = ((Chest) newBlock).getInventory();
+							newInv = newChestState.getInventory();
 							
 							//set the items of the new chest
 							newInv.setContents( oldItems );
+							
+							//update the new block
+							if( ! newChestState.update( true ) )
+							{
+								this.server.broadcastMessage( "Could not update new block!" );
+							}
 						}
 						else
 						{
 							//not a chest: we just set the old block to AIR
 							oldState.setType( Material.AIR );
-						}
-						
-						//update the old block
-						if( ! oldState.update( true ) )
-						{
-							this.server.broadcastMessage( "Could not update old block!" );
-						}
-						
-						//update the new block
-						if( ! newState.update( true ) )
-						{
-							this.server.broadcastMessage( "Could not update new block!" );
+							
+							//update the old block
+							if( ! oldState.update( true ) )
+							{
+								this.server.broadcastMessage( "Could not update old block!" );
+							}
+							
+							//set the new block to the old block material
+							newState.setType( oldMat );
+							
+							//update the old block
+							if( ! newState.update( true ) )
+							{
+								this.server.broadcastMessage( "Could not update new block!" );
+							}
 						}
 					}
 				}

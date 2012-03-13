@@ -11,8 +11,11 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <file path="/Moveable-Chest/.project"/>
         <file path="/Moveable-Chest/plugin.yml"/>
+        <file path="/Moveable-Chest/.classpath"/>
         <file path="/Moveable-Chest/README"/>
         <javaElement handleIdentifier="=Moveable-Chest/src"/>
+        <file path="/Moveable-Chest/MoveableChest.jardesc"/>
     </selectedElements>
 </jardesc>
