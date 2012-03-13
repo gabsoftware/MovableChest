@@ -9,7 +9,10 @@ import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Furnace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -51,7 +54,7 @@ public class PistonListener implements Listener {
 		Block currentRelative = null;
 		Block oldBlock = null;
 		Block newBlock = null;
-		boolean foundChest = false;
+		boolean foundSomething = false;
 		int currentRelativeIndex = 1;
 		Location oldLoc = null;
 		Location newLoc = null;
@@ -63,6 +66,12 @@ public class PistonListener implements Listener {
 		BlockState newState = null;
 		Chest oldChestState = null;
 		Chest newChestState = null;
+		Furnace oldFurnaceState = null;
+		Furnace newFurnaceState = null;
+		BrewingStand oldBTState = null;
+		BrewingStand newBTState = null;
+		Dispenser oldDispenserState = null;
+		Dispenser newDispenserState = null;
 		Inventory oldInv = null;
 		ItemStack[] oldItems = null;
 		Inventory newInv = null;
@@ -73,20 +82,23 @@ public class PistonListener implements Listener {
 		{
 			piston = event.getBlock();
 			face = getPistonFace( piston.getData() );
-			foundChest = false;
+			foundSomething = false;
 			currentRelativeIndex = 2;
 			
 			currentRelative = piston.getRelative(face, currentRelativeIndex);
 			if( currentRelative != null && ! this.isNotAcceptedType( currentRelative.getType() ) )
 			{
-				this.server.broadcastMessage( currentRelative.getType().toString() );
-				if( currentRelative.getType().equals( Material.CHEST ) )
+				//this.server.broadcastMessage( currentRelative.getType().toString() );
+				if( currentRelative.getType().equals( Material.CHEST ) 
+				||  currentRelative.getType().equals( Material.FURNACE )
+				||  currentRelative.getType().equals( Material.DISPENSER )
+				||  currentRelative.getType().equals( Material.BREWING_STAND ) )
 				{
-					foundChest = true;
-				}	
+					foundSomething = true;
+				}
 			}
 			
-			if( foundChest )
+			if( foundSomething )
 			{
 				//this.server.broadcastMessage( "[retract] Chest detected in front of piston!" );
 				
@@ -170,7 +182,7 @@ public class PistonListener implements Listener {
 					//update the old block
 					if( ! oldChestState.update( true ) )
 					{
-						this.server.broadcastMessage( "MovableChest: Could not update old block!" );
+						this.server.broadcastMessage( "MovableChest: Could not update old Chest block!" );
 					}
 					
 					//set the new block material
@@ -179,7 +191,7 @@ public class PistonListener implements Listener {
 					newChestState = (Chest) newState.getBlock().getState();
 					
 					//set the data of the new chest
-					newState.setData( oldMatData );
+					newChestState.setData( oldMatData );
 					
 					//get the inventory to the new chest
 					newInv = newChestState.getInventory();
@@ -190,10 +202,150 @@ public class PistonListener implements Listener {
 					//update the new block
 					if( ! newChestState.update( true ) )
 					{
-						this.server.broadcastMessage( "MovableChest: Could not update new block!" );
+						this.server.broadcastMessage( "MovableChest: Could not update new Chest block!" );
 					}
 				}
+				else if( oldMat.equals( Material.FURNACE ) )
+				{
 				
+					//cast the old block state to a Chest 
+					oldFurnaceState = (Furnace) oldState.getBlock().getState();
+					
+					//get the inventory of the old chest
+					oldInv = oldFurnaceState.getInventory();
+					
+					//store a copy of the items
+					oldItems = oldInv.getContents().clone();
+					
+					//get a copy of the data of the old chest
+					oldMatData = oldFurnaceState.getData();
+
+					//clear the inventory of the old chest
+					oldInv.clear();
+					
+					//replace the old chest block by AIR
+					oldFurnaceState.setType( Material.AIR );
+					
+					//update the old block
+					if( ! oldFurnaceState.update( true ) )
+					{
+						this.server.broadcastMessage( "MovableChest: Could not update old Furnace block!" );
+					}
+					
+					//set the new block material
+					newState.setType( Material.FURNACE );
+					newState.update( true );
+					newFurnaceState = (Furnace) newState.getBlock().getState();
+					
+					//set the data of the new chest
+					newFurnaceState.setData( oldMatData );
+					
+					//get the inventory to the new chest
+					newInv = newFurnaceState.getInventory();
+					
+					//set the items of the new chest
+					newInv.setContents( oldItems );
+					
+					//update the new block
+					if( ! newFurnaceState.update( true ) )
+					{
+						this.server.broadcastMessage( "MovableChest: Could not update new Furnace block!" );
+					}				
+				}
+				else if( oldMat.equals( Material.DISPENSER ) )
+				{
+				
+					//cast the old block state to a Chest 
+					oldDispenserState = (Dispenser) oldState.getBlock().getState();
+					
+					//get the inventory of the old chest
+					oldInv = oldDispenserState.getInventory();
+					
+					//store a copy of the items
+					oldItems = oldInv.getContents().clone();
+					
+					//get a copy of the data of the old chest
+					oldMatData = oldDispenserState.getData();
+
+					//clear the inventory of the old chest
+					oldInv.clear();
+					
+					//replace the old chest block by AIR
+					oldDispenserState.setType( Material.AIR );
+					
+					//update the old block
+					if( ! oldDispenserState.update( true ) )
+					{
+						this.server.broadcastMessage( "MovableChest: Could not update old Dispenser block!" );
+					}
+					
+					//set the new block material
+					newState.setType( Material.DISPENSER );
+					newState.update( true );
+					newDispenserState = (Dispenser) newState.getBlock().getState();
+					
+					//set the data of the new chest
+					newDispenserState.setData( oldMatData );
+					
+					//get the inventory to the new chest
+					newInv = newDispenserState.getInventory();
+					
+					//set the items of the new chest
+					newInv.setContents( oldItems );
+					
+					//update the new block
+					if( ! newDispenserState.update( true ) )
+					{
+						this.server.broadcastMessage( "MovableChest: Could not update new Dispenser block!" );
+					}				
+				}
+				else if( oldMat.equals( Material.BREWING_STAND ) )
+				{
+				
+					//cast the old block state to a Chest 
+					oldBTState = (BrewingStand) oldState.getBlock().getState();
+					
+					//get the inventory of the old chest
+					oldInv = oldBTState.getInventory();
+					
+					//store a copy of the items
+					oldItems = oldInv.getContents().clone();
+					
+					//get a copy of the data of the old chest
+					oldMatData = oldBTState.getData();
+
+					//clear the inventory of the old chest
+					oldInv.clear();
+					
+					//replace the old chest block by AIR
+					oldBTState.setType( Material.AIR );
+					
+					//update the old block
+					if( ! oldBTState.update( true ) )
+					{
+						this.server.broadcastMessage( "MovableChest: Could not update old Brewing_Stand block!" );
+					}
+					
+					//set the new block material
+					newState.setType( Material.BREWING_STAND );
+					newState.update( true );
+					newBTState = (BrewingStand) newState.getBlock().getState();
+					
+					//set the data of the new chest
+					newBTState.setData( oldMatData );
+					
+					//get the inventory to the new chest
+					newInv = newBTState.getInventory();
+					
+					//set the items of the new chest
+					newInv.setContents( oldItems );
+					
+					//update the new block
+					if( ! newBTState.update( true ) )
+					{
+						this.server.broadcastMessage( "MovableChest: Could not update new Brewing_Stand block!" );
+					}				
+				}
 				
 				
 				
@@ -219,7 +371,7 @@ public class PistonListener implements Listener {
 		Block currentRelative = null;
 		Block oldBlock = null;
 		Block newBlock = null;
-		boolean foundChest = false;
+		boolean foundSomething = false;
 		int currentRelativeIndex = 1;
 		int i = 1;
 		Location oldLoc = null;
@@ -232,6 +384,12 @@ public class PistonListener implements Listener {
 		BlockState newState = null;
 		Chest oldChestState = null;
 		Chest newChestState = null;
+		Furnace oldFurnaceState = null;
+		Furnace newFurnaceState = null;
+		BrewingStand oldBTState = null;
+		BrewingStand newBTState = null;
+		Dispenser oldDispenserState = null;
+		Dispenser newDispenserState = null;
 		Inventory oldInv = null;
 		ItemStack[] oldItems = null;
 		Inventory newInv = null;
@@ -243,18 +401,21 @@ public class PistonListener implements Listener {
 			
 			face = getPistonFace( piston.getData() );
 
-			foundChest = false;
+			foundSomething = false;
 			currentRelativeIndex = 1;
 				
-			while( ! foundChest && currentRelativeIndex <= 12 )
+			while( ! foundSomething && currentRelativeIndex <= 12 )
 			{
 				currentRelative = piston.getRelative(face, currentRelativeIndex);
 				if( currentRelative != null && ! this.isNotAcceptedType( currentRelative.getType() ) )
 				{
-					this.server.broadcastMessage( currentRelative.getType().toString() );
-					if( currentRelative.getType().equals( Material.CHEST ) )
+					//this.server.broadcastMessage( currentRelative.getType().toString() );
+					if( currentRelative.getType().equals( Material.CHEST )
+					||  currentRelative.getType().equals( Material.FURNACE )
+					||  currentRelative.getType().equals( Material.DISPENSER )
+					||  currentRelative.getType().equals( Material.BREWING_STAND ) )
 					{
-						foundChest = true;
+						foundSomething = true;
 						break;
 					}
 					currentRelativeIndex ++;	
@@ -266,7 +427,7 @@ public class PistonListener implements Listener {
 				}
 			}
 			
-			if( foundChest )
+			if( foundSomething )
 			{
 				//this.server.broadcastMessage( "Chest detected in front of piston!" );
 				
@@ -363,7 +524,7 @@ public class PistonListener implements Listener {
 							newChestState = (Chest) newState.getBlock().getState();
 							
 							//set the data of the new chest
-							newState.setData( oldMatData );
+							newChestState.setData( oldMatData );
 							
 							//get the inventory to the new chest
 							newInv = newChestState.getInventory();
@@ -376,6 +537,147 @@ public class PistonListener implements Listener {
 							{
 								this.server.broadcastMessage( "MovableChest: Could not update new block!" );
 							}
+						}
+						else if( oldMat.equals( Material.FURNACE ) )
+						{
+						
+							//cast the old block state to a Chest 
+							oldFurnaceState = (Furnace) oldState.getBlock().getState();
+							
+							//get the inventory of the old chest
+							oldInv = oldFurnaceState.getInventory();
+							
+							//store a copy of the items
+							oldItems = oldInv.getContents().clone();
+							
+							//get a copy of the data of the old chest
+							oldMatData = oldFurnaceState.getData();
+
+							//clear the inventory of the old chest
+							oldInv.clear();
+							
+							//replace the old chest block by AIR
+							oldFurnaceState.setType( Material.AIR );
+							
+							//update the old block
+							if( ! oldFurnaceState.update( true ) )
+							{
+								this.server.broadcastMessage( "MovableChest: Could not update old Furnace block!" );
+							}
+							
+							//set the new block material
+							newState.setType( Material.FURNACE );
+							newState.update( true );
+							newFurnaceState = (Furnace) newState.getBlock().getState();
+							
+							//set the data of the new chest
+							newFurnaceState.setData( oldMatData );
+							
+							//get the inventory to the new chest
+							newInv = newFurnaceState.getInventory();
+							
+							//set the items of the new chest
+							newInv.setContents( oldItems );
+							
+							//update the new block
+							if( ! newFurnaceState.update( true ) )
+							{
+								this.server.broadcastMessage( "MovableChest: Could not update new Furnace block!" );
+							}						
+						}
+						else if( oldMat.equals( Material.DISPENSER ) )
+						{
+						
+							//cast the old block state to a Chest 
+							oldDispenserState = (Dispenser) oldState.getBlock().getState();
+							
+							//get the inventory of the old chest
+							oldInv = oldDispenserState.getInventory();
+							
+							//store a copy of the items
+							oldItems = oldInv.getContents().clone();
+							
+							//get a copy of the data of the old chest
+							oldMatData = oldDispenserState.getData();
+
+							//clear the inventory of the old chest
+							oldInv.clear();
+							
+							//replace the old chest block by AIR
+							oldDispenserState.setType( Material.AIR );
+							
+							//update the old block
+							if( ! oldDispenserState.update( true ) )
+							{
+								this.server.broadcastMessage( "MovableChest: Could not update old Dispenser block!" );
+							}
+							
+							//set the new block material
+							newState.setType( Material.DISPENSER );
+							newState.update( true );
+							newDispenserState = (Dispenser) newState.getBlock().getState();
+							
+							//set the data of the new chest
+							newDispenserState.setData( oldMatData );
+							
+							//get the inventory to the new chest
+							newInv = newDispenserState.getInventory();
+							
+							//set the items of the new chest
+							newInv.setContents( oldItems );
+							
+							//update the new block
+							if( ! newDispenserState.update( true ) )
+							{
+								this.server.broadcastMessage( "MovableChest: Could not update new Dispenser block!" );
+							}				
+						}
+						else if( oldMat.equals( Material.BREWING_STAND ) )
+						{
+						
+							//cast the old block state to a Chest 
+							oldBTState = (BrewingStand) oldState.getBlock().getState();
+							
+							//get the inventory of the old chest
+							oldInv = oldBTState.getInventory();
+							
+							//store a copy of the items
+							oldItems = oldInv.getContents().clone();
+							
+							//get a copy of the data of the old chest
+							oldMatData = oldBTState.getData();
+
+							//clear the inventory of the old chest
+							oldInv.clear();
+							
+							//replace the old chest block by AIR
+							oldBTState.setType( Material.AIR );
+							
+							//update the old block
+							if( ! oldBTState.update( true ) )
+							{
+								this.server.broadcastMessage( "MovableChest: Could not update old BrewingStand block!" );
+							}
+							
+							//set the new block material
+							newState.setType( Material.BREWING_STAND );
+							newState.update( true );
+							newBTState = (BrewingStand) newState.getBlock().getState();
+							
+							//set the data of the new chest
+							newBTState.setData( oldMatData );
+							
+							//get the inventory to the new chest
+							newInv = newBTState.getInventory();
+							
+							//set the items of the new chest
+							newInv.setContents( oldItems );
+							
+							//update the new block
+							if( ! newBTState.update( true ) )
+							{
+								this.server.broadcastMessage( "MovableChest: Could not update new BrewingStand block!" );
+							}				
 						}
 						else
 						{
@@ -399,21 +701,21 @@ public class PistonListener implements Listener {
 						}
 					}
 				}
-				else if( event.getNewCurrent() == 0 && piston.getType().equals( Material.PISTON_STICKY_BASE ) )
+				/*else if( event.getNewCurrent() == 0 && piston.getType().equals( Material.PISTON_STICKY_BASE ) )
 				{
 					//move the chest 1 block towards the piston
 					
 					
 					
 
-				}
+				}*/
 				
 				
 			}
-			else
+			/*else
 			{
 				//this.server.broadcastMessage( "No chest were detected in front of piston." );
-			}
+			}*/
 		}
 		
 	}
