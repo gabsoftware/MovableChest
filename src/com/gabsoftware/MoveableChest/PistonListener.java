@@ -9,6 +9,7 @@ import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,8 +17,8 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 public class PistonListener implements Listener {
 	
@@ -62,10 +63,14 @@ public class PistonListener implements Listener {
 		Location oldLoc = null;
 		Location newLoc = null;
 		Material oldMat = null;
-		Material newMat = null;
 		double x_offset = 0;
 		double y_offset = 0;
 		double z_offset = 0;
+		BlockState oldState = null;
+		BlockState newState = null;
+		Inventory oldInv = null;
+		ItemStack[] oldItems = null;
+		Inventory newInv = null;
 		
 		for( Block piston : pistons )
 		{
@@ -108,19 +113,22 @@ public class PistonListener implements Listener {
 								
 					
 					//loop through the block list behind the piston
-					for( i = currentRelativeIndex; i >= 1; i++ )
-					{						
+					for( i = currentRelativeIndex; i >= 1; i-- )
+					{
+						this.server.broadcastMessage( "New loop iteration | i = " + i );
 						//get the block
 						oldBlock = piston.getRelative(face, i);
 						
 						//get the state of the old block
-						BlockState oldState =  oldBlock.getState();
+						oldState =  oldBlock.getState();
 						
 						//get the location of the old block
 						oldLoc = oldState.getLocation();
 						
 						//get the material of the old block
 						oldMat = oldState.getType();
+						
+						this.server.broadcastMessage( "Old block Material: " + oldMat.toString() );
 						
 						x_offset = 0;
 						y_offset = 0;
@@ -155,37 +163,55 @@ public class PistonListener implements Listener {
 						newBlock = newLoc.getBlock();
 						
 						//get the state of the new block
-						BlockState newState = newBlock.getState();
-						
-						//set the new block material
-						newBlock.setType( oldMat );
+						newState = newBlock.getState();
 						
 						//if the old block was a chest, copy the inventory to the new chest
 						if( oldMat.equals( Material.CHEST ) )
 						{							
 							//get the inventory of the old chest
-							InventoryHolder oldIH = (InventoryHolder) oldState.getData();
-							Inventory oldInv = oldIH.getInventory();
-							ItemStack[] oldItems = oldInv.getContents();
-
-							//copy the inventory to the new chest							
-							InventoryHolder newIH = (InventoryHolder) newState.getData();
-							Inventory newInv = newIH.getInventory();
-							newInv.setContents( oldItems.clone() );
+							oldInv = ((Chest) oldState).getInventory();
+							
+							//store a copy of the items
+							oldItems = oldInv.getContents().clone();
+							
+							//get a copy of the data of the old chest
+							MaterialData oldMatData = ((Chest) oldBlock).getData();
 
 							//clear the inventory of the old chest
 							oldInv.clear();
-						}						
-																	
-						//replace the old block by AIR
-						oldMat = Material.AIR;
-						oldState.setType( oldMat );
+							
+							//replace the old chest block by AIR
+							oldState.setType( Material.AIR );
+							
+							//set the new block material
+							newState.setType( Material.CHEST );
+							
+							//set the data of the new chest
+							((Chest) newBlock).setData( oldMatData );
+							
+							//get the inventory to the new chest
+							newInv = ((Chest) newBlock).getInventory();
+							
+							//set the items of the new chest
+							newInv.setContents( oldItems );
+						}
+						else
+						{
+							//not a chest: we just set the old block to AIR
+							oldState.setType( Material.AIR );
+						}
 						
 						//update the old block
-						oldState.update( true );					
+						if( ! oldState.update( true ) )
+						{
+							this.server.broadcastMessage( "Could not update old block!" );
+						}
 						
 						//update the new block
-						newState.update( true );						
+						if( ! newState.update( true ) )
+						{
+							this.server.broadcastMessage( "Could not update new block!" );
+						}
 					}
 				}
 				else
