@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jardesc>
-    <jar path="Moveable-Chest/exported/MoveableChest.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/Moveable-Chest/MoveableChest.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="MovableChest/exported/MovableChest.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/MovableChest/MovableChest.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
     <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
@@ -11,11 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <file path="/Moveable-Chest/.project"/>
-        <file path="/Moveable-Chest/plugin.yml"/>
-        <file path="/Moveable-Chest/.classpath"/>
-        <file path="/Moveable-Chest/README"/>
-        <javaElement handleIdentifier="=Moveable-Chest/src"/>
-        <file path="/Moveable-Chest/MoveableChest.jardesc"/>
+        <file path="/MovableChest/plugin.yml"/>
+        <file path="/MovableChest/README"/>
+        <javaElement handleIdentifier="=MovableChest/src"/>
     </selectedElements>
 </jardesc>

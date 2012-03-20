@@ -1,6 +1,6 @@
 name: MovableChest
 main: com.gabsoftware.MovableChest.MovableChest
-version: 0.1
+version: 0.2
 commands:
   mc:
     description: This is the main command.
